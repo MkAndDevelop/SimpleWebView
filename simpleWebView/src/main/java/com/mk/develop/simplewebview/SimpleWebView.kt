@@ -21,7 +21,8 @@ fun SimpleWebView(
     activity: Activity,
     url: String,
     navigateToGameCallback: (() -> Unit)? = null,
-    onPageFinishedLoggerEvent: ((userAgentString: String) -> Unit)? = null
+    onPageFinishedLoggerEvent: ((userAgentString: String) -> Unit)? = null,
+    backHandler: ((WebView) -> Unit)? = null
 ) {
     var webView: WebView? by remember { mutableStateOf(null) }
     WebConfig.fullScreenForWeb(activity)
@@ -35,5 +36,8 @@ fun SimpleWebView(
             webView = web
             WebConfig.webViewSettings(web)
         })
-    BackHandler(enabled = true) { webView?.let { WebConfig.onBackPressedEvent(it) } }
+    BackHandler(enabled = true) {
+        if (backHandler == null) webView?.let { WebConfig.onBackPressedEvent(it) }
+        else webView?.let { backHandler.invoke(it) }
+    }
 }
